@@ -1,8 +1,8 @@
 import numpy as np
-from ml_p2.neural_network import BaseNeuralNetwork
-from ml_p2.neural_network import Activation
-from ml_p2.neural_network import Initializer
-from ml_p2.neural_network.optimizer import SGD, Adam, RMSprop, AdaGrad
+from neural_network import BaseNeuralNetwork
+from neural_network import Activation
+from neural_network import Initializer
+from neural_network.optimizer import SGD, Adam, RMSprop, AdaGrad
 
 
 class NeuralNetwork(BaseNeuralNetwork):
@@ -151,13 +151,17 @@ class NeuralNetwork(BaseNeuralNetwork):
         # backpropagate the error
         for l in range(2, len(self.layers)):
             # δ⁽l⁾ = (δ⁽l+1⁾ · (W⁽l⁾)ᵀ) ⊙ σ'(z⁽l⁾)    shape: (m × nₗ)
-            if self.activation_derivatives[-l].__name__ == 'sigmoid_derivative':
-                delta = np.dot(delta, self.weights[-l + 1].T) * self.activation_derivatives[-l](activations[-l])
+            if self.activation_derivatives[-l].__name__ == "sigmoid_derivative":
+                delta = np.dot(
+                    delta, self.weights[-l + 1].T
+                ) * self.activation_derivatives[-l](activations[-l])
             else:
-                delta = np.dot(delta, self.weights[-l + 1].T) * self.activation_derivatives[-l](zs[-l])
+                delta = np.dot(
+                    delta, self.weights[-l + 1].T
+                ) * self.activation_derivatives[-l](zs[-l])
 
             # ∇W⁽l⁾ = (a⁽l-1⁾)ᵀ · δ⁽l⁾        shape: (n_{l-1} × nₗ)
-            grad_w[-l] = np.dot(activations[-l-1].T, delta)
+            grad_w[-l] = np.dot(activations[-l - 1].T, delta)
 
             if self.use_regularization:
                 grad_w[-l] += self.lambda_ * self.weights[-l]
@@ -185,7 +189,7 @@ class NeuralNetwork(BaseNeuralNetwork):
     def train(self, X, y, epochs, batch_size=32):
         n_samples = X.shape[0]
         self.optimizer.initialize(self.weights, self.biases)
-        
+
         for epoch in range(epochs):
             # Shuffle the data
             indices = np.random.permutation(n_samples)
@@ -194,17 +198,17 @@ class NeuralNetwork(BaseNeuralNetwork):
 
             # Mini-batch training
             for i in range(0, n_samples, batch_size):
-                X_batch = X_shuffled[i:i+batch_size]
-                y_batch = y_shuffled[i:i+batch_size]
+                X_batch = X_shuffled[i : i + batch_size]
+                y_batch = y_shuffled[i : i + batch_size]
 
                 activations, zs = self.forward(X_batch)
                 grad_w, grad_b = self.backward(activations, zs, y_batch)
-                
+
                 # Update weights and biases using the chosen optimizer
                 self.weights, self.biases = self.optimizer.update(
                     self.weights, self.biases, grad_w, grad_b
                 )
-            
+
             # Compute metrics for the whole dataset
             predictions, _ = self.forward(X)
             loss = self.compute_loss(predictions[-1], y)
