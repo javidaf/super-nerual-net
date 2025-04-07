@@ -103,36 +103,26 @@ def load_neural_network(filepath):
     return model
 
 
-def plot_grid_search_heatmap(
-    results, score_key, title=None, xlabel="Lookback", ylabel="Hidden Dimension"
+def plot_accuracy_heatmap(
+    accuracies, param1, param2, param1_label, param2_label, title
 ):
-    """
-    Plots a heatmap for the specified score from grid search results.
+    matrix = np.array(accuracies).reshape(len(param1), len(param2))
 
-    Parameters:
-    - results (list of dict): Grid search results.
-    - score_key (str): The key of the score to visualize (e.g., 'MSE').
-    - title (str, optional): Title of the heatmap.
-    - xlabel (str, optional): Label for the X-axis.
-    - ylabel (str, optional): Label for the Y-axis.
-    """
-    df = pd.DataFrame(
-        [
-            {
-                "lookback": res["params"]["lookback"],
-                "hidden_dim": res["params"]["hidden_dim"],
-                score_key: res["val_scores"][score_key],
-            }
-            for res in results
-        ]
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(
+        matrix,
+        annot=True,
+        xticklabels=param2,
+        yticklabels=param1,
+        cmap="viridis",
+        annot_kws={"size": 20},
+        cbar_kws={"label": "Accuracy"},
+        linewidths=0.5,
+        linecolor="black",
     )
-
-    # Pivot the DataFrame for heatmap
-    heatmap_data = df.pivot(index="hidden_dim", columns="lookback", values=score_key)
-
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(heatmap_data, annot=True, fmt=".4f", cmap="viridis")
-    plt.title(title if title else f"Heatmap of {score_key}")
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    plt.xlabel(param2_label, fontsize=12)
+    plt.ylabel(param1_label, fontsize=12)
+    plt.title(title, fontsize=14)
+    plt.xticks(fontsize=11)
+    plt.yticks(fontsize=11)
     plt.show()
