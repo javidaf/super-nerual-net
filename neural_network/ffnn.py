@@ -186,7 +186,7 @@ class NeuralNetwork(BaseNeuralNetwork):
         ss_tot = np.sum((y - np.mean(y)) ** 2)
         return 1 - (ss_res / ss_tot)
 
-    def train(self, X, y, epochs, batch_size=32):
+    def train(self, X, y, epochs, batch_size=32, verbose=False):
         n_samples = X.shape[0]
         self.optimizer.initialize(self.weights, self.biases)
 
@@ -214,9 +214,9 @@ class NeuralNetwork(BaseNeuralNetwork):
             loss = self.compute_loss(predictions[-1], y)
             r2 = self.score(X, y)
             self.cost_history.append(loss)
-
-            if (epoch + 1) % 10 == 0 or epoch == 0:
-                print(f"Epoch {epoch+1}/{epochs}, Loss: {loss:.4f}, R2: {r2:.4f}")
+            if verbose:
+                if (epoch + 1) % 5 == 0 or epoch == 0:
+                    print(f"Epoch {epoch+1}/{epochs}, Loss: {loss:.4f}, R2: {r2:.4f}")
 
     def predict(self, X):
         """Make predictions with the trained neural network."""
@@ -283,7 +283,7 @@ class NeuralNetwork(BaseNeuralNetwork):
             y_true = y
         return np.mean(y_pred == y_true)
 
-    def train_classifier(self, X, y, epochs, batch_size=32):
+    def train_classifier(self, X, y, epochs, batch_size=32, verbose=False):
         """Train the network for classification"""
         n_samples = X.shape[0]
         self.optimizer.initialize(self.weights, self.biases)
@@ -312,5 +312,8 @@ class NeuralNetwork(BaseNeuralNetwork):
             accuracy = self.accuracy_score(X, y)
             self.cost_history.append(loss)
 
-            # if (epoch + 1) % 10 == 0 or epoch == 0:
-            #     print(f"Epoch {epoch+1}/{epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}")
+            if verbose:
+                if (epoch + 1) % 5 == 0 or epoch == 0:
+                    print(
+                        f"Epoch {epoch+1}/{epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}"
+                    )
